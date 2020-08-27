@@ -1,0 +1,35 @@
+formattage de date:
+   https://javascript.info/date
+   https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Date
+
+gestion de cookie angulaire:
+   https://itnext.io/angular-8-how-to-use-cookies-14ab3f2e93fc
+
+Formatage de date pour django:
+   https://stackoverflow.com/questions/3552461/how-to-format-a-javascript-date
+
+pagination:
+   https://www.freakyjolly.com/angular-7-6-pagination-implement-local-or-server-pagination-in-3-steps/
+
+Exécution de fichier dans le ts d'un component:
+   https://medium.com/better-programming/angular-load-external-javascript-file-dynamically-3d14dde815cb
+
+DateTime: new Date().toISOString().toString()
+
+Gestion des permissions par page:
+   https://www.npmjs.com/package/ngx-permissions
+
+Hebergement angular:
+   https://ngmilk.rocks/2015/03/09/angularjs-html5-mode-or-pretty-urls-on-apache-using-htaccess/
+
+Indexdb:
+   https://www.npmjs.com/package/ngx-indexed-db
+
+Mettre les dessins de polygone en français dans leaflet:
+   https://github.com/DenisCarriere/Leaflet.draw.locales
+
+Obtenir le nom des arguments d'une fonction:
+   https://www.geeksforgeeks.org/how-to-get-the-javascript-function-parameter-names-values-dynamically/
+
+commande build:
+   ng build --prod --aot
