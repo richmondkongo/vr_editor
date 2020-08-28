@@ -3,6 +3,7 @@ import { NgForm } from '@angular/forms';
 import * as three from 'three';
 import * as panolens from 'panolens';
 import { LocalSaveService } from '../__services/local-save.service';
+import { Hotspot, Infospot } from '../model';
 declare var $: any;
 
 @Component({
@@ -29,7 +30,7 @@ export class ViewerComponent implements OnInit {
 	hotspot_infospot: string = '';
 
 	// Ensemble des infospot
-	infospot: Ispot[] = [];
+	infospot: Infospot[] = [];
 
 	selecteur_coord_3d = 'body > div.panolens-container > div:nth-child(4)';
 
@@ -51,7 +52,7 @@ export class ViewerComponent implements OnInit {
 		this.set_locale_view();
 	}
 
-	start_view(img: string[], link: Hotspot[], infoS: Ispot[] = []) {
+	start_view(img: string[], link: Hotspot[], infoS: Infospot[] = []) {
 		/*
 		 * cette fonction permet de lancer véritablement le panorama
 		 * args:
@@ -79,7 +80,7 @@ export class ViewerComponent implements OnInit {
 
 		this.p.forEach((item, index) => {
 			link.forEach((lk, ind) => {
-				if (lk.from == this.pano_img_id[index]) {
+				if (lk.origin == this.pano_img_id[index]) {
 					try {
 						item.link(this.p[this.pano_img_id.indexOf(lk.to)], this.conv_xyz2vect3(this.conv_text2xyz(lk.coords)));
 					} catch (err) {
@@ -90,7 +91,7 @@ export class ViewerComponent implements OnInit {
 
 			infoS.forEach((inf, indice) => {
 				if (this.pano_img_id[index] == inf.img)
-					item.add(this.addIspot(inf));
+					item.add(this.addInfospot(inf));
 			});
 
 			item.addEventListener('progress', this.onProgress);
@@ -101,9 +102,9 @@ export class ViewerComponent implements OnInit {
 		});
 	}
 
-	addIspot(infospot: Ispot) {
+	addInfospot(infospot: Infospot) {
 		/*
-		 * Crée un spot de type info (celui qu'on a personnalisé: type ISpot)
+		 * Crée un spot de type info (celui qu'on a personnalisé: type Infospot)
 		 */
 		let info = new panolens.Infospot(), tab_coords = this.conv_text2xyz(infospot.coords);
 		info.position.set(tab_coords[0], tab_coords[1], tab_coords[2]);
@@ -178,20 +179,20 @@ export class ViewerComponent implements OnInit {
 		this.next_hspot = image_id;
 	}
 
-	on_submit_ispot(f: NgForm) {
+	on_submit_infospot(f: NgForm) {
 		/*
 		 * Permet de créer des infospots mis dans le formulaire
 		 */
 		if (document.getElementById('coord_3d').textContent != '*') {
-			let i: Ispot = new Ispot();
+			let i: Infospot = new Infospot();
 			i.coords = document.getElementById('coord_3d').textContent;
 			i.img = this.pano_img_id[this.now_img];
 			i.info = f.value.t;
-			this.db.create_locale_backuping_infospot({ type: 0, img: this.pano_img_id[this.now_img], coords: i.coords, info: i.info }).then(
+			this.db.create_locale_backuping_infospot({ txt_or_html: 0, img: this.pano_img_id[this.now_img], coords: i.coords, info: i.info }).then(
 				(res) => {
-					this.p[this.now_img].add(this.addIspot(i));
+					this.p[this.now_img].add(this.addInfospot(i));
 					document.getElementById('coord_3d').textContent = '*';
-					this.infospot.push(this.addIspot(i));
+					this.infospot.push(this.addInfospot(i));
 				}, (err) => {
 					console.error(err);
 				}
@@ -210,17 +211,17 @@ export class ViewerComponent implements OnInit {
 		xyz[1] -= 300;
 		xyz = xyz.join(', ');
 		let div_coord_3d = document.getElementById('coord_3d').textContent;
-		this.link_to.push({ from: this.pano_img_id[this.now_img], coords: div_coord_3d, to: this.pano_img_id[this.next_hspot] });
-		this.db.create_locale_backuping_hotspot({ from: this.pano_img_id[this.now_img], coords: div_coord_3d, to: this.pano_img_id[this.next_hspot] })
-		let i: Ispot = new Ispot();
+		this.link_to.push({ origin: this.pano_img_id[this.now_img], coords: div_coord_3d, to: this.pano_img_id[this.next_hspot] });
+		this.db.create_locale_backuping_hotspot({ origin: this.pano_img_id[this.now_img], coords: div_coord_3d, to: this.pano_img_id[this.next_hspot] })
+		let i: Infospot = new Infospot();
 		i.coords = xyz;
 		i.img = this.pano_img_id[this.now_img];
 		i.info = this.hotspot_infospot;
 		this.hotspot_infospot = '';
-		this.db.create_locale_backuping_infospot({ type: 0, img: this.pano_img_id[this.now_img], coords: i.coords, info: i.info }).then(
+		this.db.create_locale_backuping_infospot({ txt_or_html: 0, img: this.pano_img_id[this.now_img], coords: i.coords, info: i.info }).then(
 			(res) => {
-				this.p[this.now_img].add(this.addIspot(i));
-				this.infospot.push(this.addIspot(i));
+				this.p[this.now_img].add(this.addInfospot(i));
+				this.infospot.push(this.addInfospot(i));
 				$('#hotspot-modal').modal('hide');
 			}, (err) => {
 				console.error(err);
@@ -275,7 +276,7 @@ export class ViewerComponent implements OnInit {
 												this.start_view(this.pano_img, this.link_to, this.infospot);
 											} else {
 												res_hotspot.forEach((elt3, i3) => {
-													this.link_to.push({ from: elt3.from, to: elt3.to, coords: elt3.coords })
+													this.link_to.push({ origin: elt3.origin, to: elt3.to, coords: elt3.coords })
 													if (i3 == res_hotspot.length - 1) {
 														document.querySelectorAll('.panolens-container').forEach((a) => { a.remove() })
 														this.start_view(this.pano_img, this.link_to, this.infospot);
@@ -294,7 +295,7 @@ export class ViewerComponent implements OnInit {
 											this.db.get_local_backuping_hotspot().then(
 												(res_hotspot: any[]) => {
 													res_hotspot.forEach((elt3, i3) => {
-														this.link_to.push({ from: elt3.from, to: elt3.to, coords: elt3.coords })
+														this.link_to.push({ origin: elt3.origin, to: elt3.to, coords: elt3.coords })
 														if (i3 == res_hotspot.length - 1) {
 															document.querySelectorAll('.panolens-container').forEach((a) => { a.remove() })
 															this.start_view(this.pano_img, this.link_to, this.infospot);
@@ -321,34 +322,3 @@ export class ViewerComponent implements OnInit {
 	}
 }
 
-export class Hotspot {
-	/*
-	 *
-	 * type de la variable
-	 */
-
-	// image de départ
-	from: string;
-
-	// image vers laquelle on doit aller
-	to: string;
-
-	// positionnement du spot de direction dans l'image par des coordonnées (x, y, z) 
-	coords: string;
-}
-
-export class Ispot {
-	/*
-	 *
-	 * formatage des infospots
-	 */
-
-	// image sur laquelle le hotspot doit être posé
-	img: string;
-
-	// positionnement de l'infospot par des coordonnées (x, y, z) 
-	coords: string;
-
-	// texte à afficher
-	info: string;
-}

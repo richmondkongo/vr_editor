@@ -1,16 +1,15 @@
 import { Injectable } from '@angular/core';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
+import { Image_360, Hotspot, Infospot } from '../model';
 
 @Injectable({
 	providedIn: 'root'
 })
 export class LocalSaveService {
 
-	constructor(private db: NgxIndexedDBService) {
-		// this.create_locale_backuping_hotspot({coords: "847.64, 637.07, -4827.74", from: "71", to: "72"});
-	}
+	constructor(private db: NgxIndexedDBService) {}
 
-	create_local_backuping_img(data: { id: string, base64: string, name?: string, lastModified?: number, size?: number }) {
+	create_local_backuping_img(data: Image_360) {
 		return new Promise(
 			(resolve, reject) => {
 				this.db.add('image', data).then(
@@ -38,7 +37,7 @@ export class LocalSaveService {
 		)
 	}
 
-	create_locale_backuping_infospot(data: { type: number, img: string, coords: string, info: string }) {
+	create_locale_backuping_infospot(data: Infospot) {
 		return new Promise(
 			(resolve, reject) => {
 				this.db.add('infospot', data).then(
@@ -66,7 +65,7 @@ export class LocalSaveService {
 		)
 	}
 
-	create_locale_backuping_hotspot(data: { from: string, coords: string, to: string }) {
+	create_locale_backuping_hotspot(data: Hotspot) {
 		return new Promise(
 			(resolve, reject) => {
 				this.db.add('hotspot', data).then(

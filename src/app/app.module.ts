@@ -1,15 +1,18 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ViewerComponent } from './viewer/viewer.component';
 import { FormsModule } from '@angular/forms';
-import { TrciComponent } from './trci/trci.component';
 
 import { NgxIndexedDBModule } from 'ngx-indexed-db';
 import { LocalSaveService } from './__services/local-save.service';
+import { ApiService } from './__services/api.service';
+import { GService } from './__services/g.service';
 import { ImageSelectionComponent } from './image-selection/image-selection.component';
+import { TestComponent } from './test/test.component';
 
 const dbConfig = {
   name: 'wevr',
@@ -35,10 +38,11 @@ const dbConfig = {
   declarations: [
     AppComponent,
     ViewerComponent,
-    TrciComponent,
-    ImageSelectionComponent
+    ImageSelectionComponent,
+    TestComponent
   ],
   imports: [
+		HttpClientModule,
     BrowserModule,
     AppRoutingModule, 
     FormsModule,
@@ -46,6 +50,8 @@ const dbConfig = {
   ],
   providers: [
     LocalSaveService,
+    ApiService,
+    GService,
   ],
   bootstrap: [AppComponent]
 })
