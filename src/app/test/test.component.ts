@@ -19,6 +19,7 @@ export class TestComponent implements OnInit {
 		// 	}
 		// )
 
+		/*
 		this.db.get_local_backuping_img().then(
 			(res) => {
 				console.log('liste des image locale:', res)
@@ -38,6 +39,21 @@ export class TestComponent implements OnInit {
 					}
 				)
 			}
+		)
+		*/
+
+		// this.db.get_local_backuping_infospot().then(
+		// 	(res: any) => {
+
+		// 	}, (err) => {
+		// 		console.error(err);
+		// 	}
+		// );
+
+		this.db.get_local_backuping_hotspot("4ba83e32-9b0c-4bf4-ad39-da7ff2f53f90").then(
+			(res) => {
+				console.log(res)
+			}, (err) => { console.log(err)}
 		)
 
 		// this.api.get_imgae_360().then(

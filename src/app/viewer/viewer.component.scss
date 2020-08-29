@@ -18,12 +18,30 @@
   	opacity: 0;
 }
 
-.btn-fixed-control {
+.btn-fixed-control-hotspot-infospot {
   	display: flex;
 	flex-direction: column;
   	justify-content: center;
   	position: fixed;
-  	margin-top: 10%;
+  	margin-top: 2%;
+}
+
+.btn-fixed-control-save-visit {
+	display: flex;
+	flex-direction: column;
+  	justify-content: center;
+  	position: fixed;
+	bottom: -0.5%;
+	right: 5.75%;
+}
+
+.btn-fixed-control-save-visit svg {
+	width: 1.8em;
+	height: 1.8em;
+}
+
+.btn-fixed-control-save-visit button:hover svg {
+	transform: scale(1.30);
 }
 
 #img-list * {
@@ -83,4 +101,15 @@
 
 .selected-border {
 	border-top: 5px solid #218838;
+}
+
+@media only screen and (max-width: 992px) {
+	.btn-fixed-control-save-visit {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		position: fixed;
+		bottom: -0.5%;
+		margin-right: 5.75%;
+	}
 }

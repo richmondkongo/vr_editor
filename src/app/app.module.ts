@@ -13,6 +13,7 @@ import { ApiService } from './__services/api.service';
 import { GService } from './__services/g.service';
 import { ImageSelectionComponent } from './image-selection/image-selection.component';
 import { TestComponent } from './test/test.component';
+import { SplashscreenComponent } from './splashscreen/splashscreen.component';
 
 const dbConfig = {
   name: 'wevr',
@@ -26,11 +27,17 @@ const dbConfig = {
   }, {
     store: 'hotspot',
     storeConfig: { keyPath: 'locale_id', autoIncrement: true },
-    storeSchema: []
+    storeSchema: [
+      { name: 'origin', keypath: 'origin', options: { unique: false } },
+      { name: 'to', keypath: 'to', options: { unique: false } },
+    ]
   }, {
     store: 'infospot',
     storeConfig: { keyPath: 'locale_id', autoIncrement: true },
-    storeSchema: []
+    storeSchema: [
+      { name: 'img', keypath: 'img', options: { unique: false } },
+      { name: 'txt_or_html', keypath: 'txt_or_html', options: { unique: false } },
+    ]
   }]
 };
 
@@ -39,7 +46,8 @@ const dbConfig = {
     AppComponent,
     ViewerComponent,
     ImageSelectionComponent,
-    TestComponent
+    TestComponent,
+    SplashscreenComponent
   ],
   imports: [
 		HttpClientModule,

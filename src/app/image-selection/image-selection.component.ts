@@ -16,6 +16,13 @@ export class ImageSelectionComponent implements OnInit {
 	constructor(private db: LocalSaveService, private router: Router,) { }
 
 	ngOnInit(): void {
+		document.getElementById('btn-select-file').addEventListener('click', () => {
+			document.getElementById('select-file').click()
+		})
+	}
+
+	go_to_editor() {
+		this.router.navigate(['/editor']);
 	}
 
 	on_select(e) {

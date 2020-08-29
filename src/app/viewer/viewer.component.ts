@@ -4,6 +4,8 @@ import * as three from 'three';
 import * as panolens from 'panolens';
 import { LocalSaveService } from '../__services/local-save.service';
 import { Hotspot, Infospot } from '../model';
+import { ApiService } from '../__services/api.service';
+import { Router } from '@angular/router';
 declare var $: any;
 
 @Component({
@@ -19,12 +21,14 @@ https://github.com/pchen66/panolens.js/issues/160
 */
 
 export class ViewerComponent implements OnInit {
+	// Les deux variables ci dessous permettent d'envoyer une sorte de signal ordonnant la suppression des tables locales
+	signal_hotspot: number = 0; signal_infospot: number = 0;
+
 	// Ensemble des liens entres images
 	link_to: Hotspot[] = [];
 
 	// Ensemble des liens des images
-	pano_img: string[] = [];
-	pano_img_id: string[] = [];
+	pano_img: string[] = []; pano_img_id: string[] = [];
 
 	// utilisé lorsqu'on saisie le texte d'un hotspot
 	hotspot_infospot: string = '';
@@ -46,10 +50,22 @@ export class ViewerComponent implements OnInit {
 	// contient toute la vue 360
 	sky: panolens.Viewer = null;
 
-	constructor(private db: LocalSaveService) { }
+	constructor(private db: LocalSaveService, private api: ApiService, private router: Router) { }
 
 	ngOnInit() {
 		this.set_locale_view();
+		console.log(this.count_table('image'))
+	}
+
+	async count_table(table) {
+		let count = 0;
+		this.db.count_local_backuping_table(table).then(
+			async (res) => {
+				return await res;
+			}, (err) => {
+				console.error(err);
+			}
+		);
 	}
 
 	start_view(img: string[], link: Hotspot[], infoS: Infospot[] = []) {
@@ -318,6 +334,92 @@ export class ViewerComponent implements OnInit {
 			}, (err) => {
 				console.error(err);
 			}
+		)
+	}
+
+	clean_all_db_table() {
+		if (this.signal_hotspot && this.signal_hotspot) {
+			this.db.clean_local_backuping_table('infospot').then((res) => {
+				this.db.clean_local_backuping_table('hotspot').then((res) => {
+					this.db.clean_local_backuping_table('image').then((res) => {
+						let conf = confirm("Votre visite virtuelle a bien été sauvegardé, voulez vous en ajouter une nouvelle?");
+						if (conf) {
+							this.router.navigate(['/selection-image']);
+						} else {
+							this.router.navigate(['/splashscreen']);
+						}
+					}, (err) => { console.error(err) })
+				}, (err) => { console.error(err) })
+			}, (err) => { console.error(err) })
+		}
+	}
+
+	save_online() {
+
+		console.clear(); console.log('sauvegarde en ligne...')
+		this.api.set_visite_virtuelle((Date.now()).toString()).then(
+			(res_visite: any) => {
+				this.db.get_local_backuping_img().then(
+					(res_img: any) => {
+						let id_of_img: string[] = [];
+						for (let i = 0; i < res_img.length; i++) {
+							const e = res_img[i];
+							this.api.set_image_360(res_visite.id, e.base64, e.id, e.name, e.lastModified, e.size).then(
+								(res_img_online: any) => {
+									id_of_img.push(e.id);
+									if (i == res_img.length - 1) {
+										id_of_img.forEach(elt => {
+											this.db.get_local_backuping_hotspot(elt).then(
+												(res_hotspot: any) => {
+													for (let j = 0; j < res_hotspot.length; j++) {
+														const f = res_hotspot[j];
+														this.api.set_hotspot(f.origin, f.to, f.coords).then(
+															(res_hotspot_online) => {
+																if (j == res_hotspot.length - 1) {
+																	this.clean_all_db_table();
+																}
+															}, (err_hotspot_online) => {
+																console.error(err_hotspot_online);
+															}
+														);
+													}
+												}, (err_hotspot) => {
+													console.error(err_hotspot);
+												}
+											);
+
+											this.db.get_local_backuping_infospot(elt).then(
+												(res_infospot: any) => {
+													for (let j = 0; j < res_infospot.length; j++) {
+														const f = res_infospot[j];
+														this.api.set_infospot(f.img, f.coords, f.info, f.txt_or_html).then(
+															(res_infospot_online) => {
+																if (j == res_infospot.length - 1) {
+																	this.clean_all_db_table();
+																}
+															}, (err_hotspot_online) => {
+																console.error(err_hotspot_online);
+															}
+														);
+													}
+												}, (err_hotspot) => {
+													console.error(err_hotspot);
+												}
+											);
+										});
+									}
+								}, (err_img_online) => {
+									console.error(err_img_online);
+								}
+							)
+						}
+					}, (err_img) => {
+						console.error(err_img);
+					}
+				)
+			}, (err_visite => {
+				console.error(err_visite)
+			})
 		)
 	}
 }

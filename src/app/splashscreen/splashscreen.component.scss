@@ -18,8 +18,7 @@ body, html, .container-fluid {
 
 .text-design {
     text-align: center;
-    padding: 0em 0em 0em 1em;
-    font-size: 5vw;
+    font-size: 15vw;
     font-weight: bolder;
     color: white;
 }
@@ -32,10 +31,6 @@ body, html, .container-fluid {
     font-weight: 150;
     height: 10vh;
     padding: 0.25em
-}
-
-#select-file {
-    display: none;
 }
 
 @media only screen and (max-width: 768px) {

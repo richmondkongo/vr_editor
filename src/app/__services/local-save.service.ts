@@ -7,7 +7,7 @@ import { Image_360, Hotspot, Infospot } from '../model';
 })
 export class LocalSaveService {
 
-	constructor(private db: NgxIndexedDBService) {}
+	constructor(private db: NgxIndexedDBService) { }
 
 	create_local_backuping_img(data: Image_360) {
 		return new Promise(
@@ -51,16 +51,26 @@ export class LocalSaveService {
 		)
 	}
 
-	get_local_backuping_infospot() {
+	get_local_backuping_infospot(img_uuid: string = null) {
 		return new Promise(
 			(resolve, reject) => {
-				this.db.getAll('infospot').then(
-					(res) => {
-						resolve(res);
-					}, (err) => {
-						reject(err);
-					}
-				);
+				if (img_uuid == null) {
+					this.db.getAll('infospot').then(
+						(res) => {
+							resolve(res);
+						}, (err) => {
+							reject(err);
+						}
+					);
+				} else {
+					this.db.getAllByIndex('infospot', 'img', IDBKeyRange.only(img_uuid)).then(
+						(res) => {
+							resolve(res);
+						}, (err) => {
+							reject(err);
+						}
+					);
+				}
 			}
 		)
 	}
@@ -79,16 +89,26 @@ export class LocalSaveService {
 		)
 	}
 
-	get_local_backuping_hotspot() {
+	get_local_backuping_hotspot(origin_uuid: string = null) {
 		return new Promise(
 			(resolve, reject) => {
-				this.db.getAll('hotspot').then(
-					(res) => {
-						resolve(res);
-					}, (err) => {
-						reject(err);
-					}
-				);
+				if (origin_uuid == null) {
+					this.db.getAll('hotspot').then(
+						(res) => {
+							resolve(res);
+						}, (err) => {
+							reject(err);
+						}
+					);
+				} else {
+					this.db.getAllByIndex('hotspot', 'origin', IDBKeyRange.only(origin_uuid)).then(
+						(res) => {
+							resolve(res);
+						}, (err) => {
+							reject(err);
+						}
+					);
+				}
 			}
 		)
 	}
@@ -101,6 +121,20 @@ export class LocalSaveService {
 						resolve(res);
 					},
 					(err) => {
+						reject(err);
+					}
+				);
+			}
+		)
+	}
+
+	count_local_backuping_table(table: string) {
+		return new Promise(
+			(resolve, reject) => {
+				this.db.count(table).then(
+					(count) => {
+						resolve(count);
+					}, (err) => {
 						reject(err);
 					}
 				);
