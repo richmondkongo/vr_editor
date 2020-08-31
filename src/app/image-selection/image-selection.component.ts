@@ -16,6 +16,10 @@ export class ImageSelectionComponent implements OnInit {
 	constructor(private db: LocalSaveService, private router: Router,) { }
 
 	ngOnInit(): void {
+		// Nettoyage de la bd locale
+		this.clean_all_db_table();
+
+		// permet de designer le bouton de selection des images
 		document.getElementById('btn-select-file').addEventListener('click', () => {
 			document.getElementById('select-file').click()
 		})
@@ -27,11 +31,10 @@ export class ImageSelectionComponent implements OnInit {
 
 	on_select(e) {
 		/*
-		 *
 		 * Se charge de récupérer les images selectionnées par le inputs et de les convertir en base 64 puis de les sauvegarder en locale.
 		 */
 		if (e.target.files) {
-			console.log(e)
+			// console.log(e)
 			this.db.clean_local_backuping_table('image').then(
 				(res_img) => {
 					this.db.clean_local_backuping_table('hotspot').then(
@@ -47,13 +50,12 @@ export class ImageSelectionComponent implements OnInit {
 													this.panoImg.push(ev.target.result);
 													if (i == e.target.files.length - 1) {
 														// La sauvegarde des images en locale est effective on va à présent vers l'éditeur.
-
 														// this.router.navigate(['/editor']);
 													}
-													// console.table(this.urls);
 												}, (err) => {
 													console.error(err);
 													alert("Une erreur s'est produite veuillez reprendre le processsus.");
+													this.clean_all_db_table();
 												}
 											);
 										}
@@ -71,5 +73,16 @@ export class ImageSelectionComponent implements OnInit {
 				}
 			)
 		}
+	}
+
+	clean_all_db_table() {
+		console.log('Nettoyage...')
+		this.db.clean_local_backuping_table('infospot').then((res) => {
+			this.db.clean_local_backuping_table('hotspot').then((res) => {
+				this.db.clean_local_backuping_table('image').then((res) => {
+					//
+				}, (err) => { console.error(err) })
+			}, (err) => { console.error(err) })
+		}, (err) => { console.error(err) })
 	}
 }

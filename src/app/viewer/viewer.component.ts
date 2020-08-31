@@ -50,18 +50,20 @@ export class ViewerComponent implements OnInit {
 	// contient toute la vue 360
 	sky: panolens.Viewer = null;
 
+	// compteur
+	count: { image: number, hotspot: number, infospot: number } = { image: 0, hotspot: 0, infospot: 0 }
+
 	constructor(private db: LocalSaveService, private api: ApiService, private router: Router) { }
 
 	ngOnInit() {
-		this.set_locale_view();
-		console.log(this.count_table('image'))
-	}
-
-	async count_table(table) {
-		let count = 0;
-		this.db.count_local_backuping_table(table).then(
-			async (res) => {
-				return await res;
+		this.db.count_local_backuping_table('image').then(
+			(count: number) => {
+				if (count > 0) {
+					this.set_locale_view();
+				} else {
+					alert(`Vous n'avez pas sélectionné des images pour l'édition.\nFaites le en premier lieu.`);
+					this.router.navigate(['image-selection']);
+				}
 			}, (err) => {
 				console.error(err);
 			}
@@ -106,8 +108,9 @@ export class ViewerComponent implements OnInit {
 			});
 
 			infoS.forEach((inf, indice) => {
-				if (this.pano_img_id[index] == inf.img)
+				if (this.pano_img_id[index] == inf.img && inf.img && inf.coords && inf.info) {
 					item.add(this.addInfospot(inf));
+				}
 			});
 
 			item.addEventListener('progress', this.onProgress);
@@ -338,15 +341,16 @@ export class ViewerComponent implements OnInit {
 	}
 
 	clean_all_db_table() {
-		if (this.signal_hotspot && this.signal_hotspot) {
+		console.log('Nettoyage...')
+		if (this.signal_hotspot == 1 && this.signal_infospot == 1) {
 			this.db.clean_local_backuping_table('infospot').then((res) => {
 				this.db.clean_local_backuping_table('hotspot').then((res) => {
 					this.db.clean_local_backuping_table('image').then((res) => {
 						let conf = confirm("Votre visite virtuelle a bien été sauvegardé, voulez vous en ajouter une nouvelle?");
 						if (conf) {
-							this.router.navigate(['/selection-image']);
+							this.router.navigate(['/image-selection']);
 						} else {
-							this.router.navigate(['/splashscreen']);
+							this.router.navigate(['/']);
 						}
 					}, (err) => { console.error(err) })
 				}, (err) => { console.error(err) })
@@ -355,7 +359,6 @@ export class ViewerComponent implements OnInit {
 	}
 
 	save_online() {
-
 		console.clear(); console.log('sauvegarde en ligne...')
 		this.api.set_visite_virtuelle((Date.now()).toString()).then(
 			(res_visite: any) => {
@@ -376,6 +379,7 @@ export class ViewerComponent implements OnInit {
 														this.api.set_hotspot(f.origin, f.to, f.coords).then(
 															(res_hotspot_online) => {
 																if (j == res_hotspot.length - 1) {
+																	this.signal_hotspot = 1;
 																	this.clean_all_db_table();
 																}
 															}, (err_hotspot_online) => {
@@ -395,6 +399,7 @@ export class ViewerComponent implements OnInit {
 														this.api.set_infospot(f.img, f.coords, f.info, f.txt_or_html).then(
 															(res_infospot_online) => {
 																if (j == res_infospot.length - 1) {
+																	this.signal_infospot = 1;
 																	this.clean_all_db_table();
 																}
 															}, (err_hotspot_online) => {
