@@ -94,7 +94,7 @@
 </div>
 
 <!-- Le html ci dessous ne s'affiche que si l'on est en mode normal(pas cardboard, pas stéréoscopique) -->
-<div id="img-bottom" *ngIf="this.sky?.mode == 1">
+<div id="img-bottom" *ngIf="this.sky?.mode == 1 && pano_img.length > 1">
    <div class="row">
       <div class="col-sm-2"></div>
       <div class="col-12 col-sm-8">

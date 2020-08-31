@@ -1,28 +1,12 @@
-<!-- <div class="container-fluid">
-   <div class="row">
-      <div class="col-12">
-         <div class="row">
-            <div class="col-sm-6 col-md-4 col-lg-3" *ngFor="let url of panoImg; let i=index"
-               style="margin: 0px; padding: 0px">
-               <img [src]="url" [alt]="url" style="width: 100%; max-height: auto; margin: 0.25em 0.25em; padding: 0px"
-                  type="jpg" (dblclick)="start_edit(i)">
-            </div>
-            <input type="file" name="" id="" (change)="on_select($event)" multiple class="col-12">
-         </div>
-      </div>
-   </div>
-</div> -->
-
-
 <div class="container-fluid">
    <div class="row">
-      <div class="col-sm-2">
+      <div class="col-sm-12 col-md-2">
          <p class="text-design">WEVR</p>
       </div>
-      <div class="col-sm-4"></div>
-      <div class="col-sm-6">
+      <div class="col-sm-0 col-md-4"></div>
+      <div class="col-sm-12 col-md-6">
          <div class="row">
-            <div class="col-12 col-sm-12 col-md-6"><button type="button" class="btn btn-primary my-button" (click)="go_to_editor()">Editer la visite</button></div>
+            <div class="col-12 col-sm-12 col-md-6"><button type="button" class="btn btn-primary my-button" (click)="local_save()">Editer la visite</button></div>
             <div class="col-12 col-sm-12 col-md-6"><button type="button" class="btn btn-success my-button" id="btn-select-file">Ajouter une ou des images</button></div>
          </div>
       </div>
@@ -30,12 +14,15 @@
    <div class="row">
       <div class="col-12">
          <div class="row">
-            <div class="col-sm-6 col-md-4 col-lg-3" *ngFor="let url of panoImg; let i=index" style="margin: 0px; padding: 0px">
-               <input type="checkbox" style="position: absolute; top: 0.5vw; right: 0.5vw;">
-               <img [src]="url" [alt]="url" style="width: 100%; max-height: auto; margin: 0%; padding: 0px; height: 182.3px;"
-                  type="jpg" (dblclick)="start_edit(i)">
+            <div class="col-sm-6 col-md-4 col-lg-3" *ngFor="let url of img_list; let i=index" id="image-selected">
+               <input type="checkbox" [ngModel]="save_img[i]" (change)="box_checked(i)">
+               <img [src]="url.base64" [alt]="url.name" (dblclick)="box_checked(i)">
             </div>
-            <input type="file" name="" id="" (change)="on_select($event)" multiple class="col-12" id="select-file">
+            <input type="file" (change)="on_select($event)" multiple class="col-12" id="select-file">
+         </div>
+         <div class="row delete-button">
+            <div class="col-sm-9 col-md-10"></div>
+            <div class="col-12 col-sm-3 col-md-2"><button type="button" class="btn btn-danger" style="background: black" (click)="remove()">Retirer les images sélectionnées</button></div>
          </div>
       </div>
    </div>

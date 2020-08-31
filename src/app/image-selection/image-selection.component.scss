@@ -1,5 +1,6 @@
 body, html, .container-fluid {
     background: #000200;
+    background-size: auto;
     height: 100vh;
     color: white;
 }
@@ -10,6 +11,10 @@ body, html, .container-fluid {
     box-sizing: border-box;
 }
 
+* div {
+    background: #000200;
+}
+
 .column-center {
     text-align: center;
     margin-top: 20vh;
@@ -17,24 +22,59 @@ body, html, .container-fluid {
 
 .text-design {
     text-align: center;
-    padding: 0em 0em 0em 1em;
-    font-size: 5vw;
+    padding: 0em 0em 0em 0em;
+    font-size: 4vw;
     font-weight: bolder;
     color: white;
 }
 
 .my-button {
     margin: 5%;
-    width: 90%;
+    width: 85%;
     text-align: center;
-    font-size: 1.05em;
+    font-size: 0.95em;
     font-weight: 150;
     height: 10vh;
     padding: 0.25em
 }
 
+.delete-button button {
+    margin: 5%;
+    width: 80%;
+    text-align: center;
+    font-size: 0.8em;
+    height: 10vh;
+    padding: 0.15em
+}
+
+.delete-button {
+    position: fixed;
+    width: 100%;
+    bottom: 1em;
+    display: flex;
+    justify-content: center;
+}
+
 #select-file {
     display: none;
+}
+
+#image-selected {
+    margin: 0px; padding: 0px
+}
+
+#image-selected > input{
+    position: absolute !important; 
+    top: 0.5vw !important; 
+    right: 0.5vw !important;
+}
+
+#image-selected > img {
+    width: 100% !important; 
+    max-height: auto !important; 
+    margin: 0% !important; 
+    padding: 0px !important; 
+    height: 182.3px !important;
 }
 
 @media only screen and (max-width: 768px) {
@@ -49,6 +89,6 @@ body, html, .container-fluid {
         text-align: center;
         font-size: 1.0em;
         font-weight: 0;
-        height: 8vh;
+        height: 12vh;
     }
 }

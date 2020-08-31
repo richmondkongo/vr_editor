@@ -12,12 +12,15 @@ declare var $: any;
 })
 export class ImageSelectionComponent implements OnInit {
 	// Ensemble des liens des images
-	panoImg: string[] = [];
+	save_img: boolean[] = [];
+	img_list: { id: string, base64: string, name: string, size: number, lastModified: string }[] = [];
+
+
 	constructor(private db: LocalSaveService, private router: Router,) { }
 
 	ngOnInit(): void {
 		// Nettoyage de la bd locale
-		this.clean_all_db_table();
+		// this.clean_all_db_table();
 
 		// permet de designer le bouton de selection des images
 		document.getElementById('btn-select-file').addEventListener('click', () => {
@@ -25,8 +28,8 @@ export class ImageSelectionComponent implements OnInit {
 		})
 	}
 
-	go_to_editor() {
-		this.router.navigate(['/editor']);
+	box_checked(i) {
+		this.save_img[i] = !this.save_img[i];
 	}
 
 	on_select(e) {
@@ -45,19 +48,8 @@ export class ImageSelectionComponent implements OnInit {
 										let reader = new FileReader();
 										reader.readAsDataURL(e.target.files[i]);
 										reader.onload = (ev: any) => {
-											this.db.create_local_backuping_img({ id: uuid(), base64: ev.target.result, name: e.srcElement.files[i].name, size: e.srcElement.files[i].size, lastModified: e.srcElement.files[i].lastModified }).then(
-												(res) => {
-													this.panoImg.push(ev.target.result);
-													if (i == e.target.files.length - 1) {
-														// La sauvegarde des images en locale est effective on va à présent vers l'éditeur.
-														// this.router.navigate(['/editor']);
-													}
-												}, (err) => {
-													console.error(err);
-													alert("Une erreur s'est produite veuillez reprendre le processsus.");
-													this.clean_all_db_table();
-												}
-											);
+											this.save_img.push(true);
+											this.img_list.push({ id: uuid(), base64: ev.target.result, name: e.srcElement.files[i].name, size: e.srcElement.files[i].size, lastModified: e.srcElement.files[i].lastModified });
 										}
 									}
 								}, (err_ip) => {
@@ -75,14 +67,63 @@ export class ImageSelectionComponent implements OnInit {
 		}
 	}
 
+	local_save() {
+		this.img_list.forEach((e, i) => {
+			if (this.save_img[i]) {
+				this.db.create_local_backuping_img({ id: e.id, base64: e.base64, name: e.name, size: e.size, lastModified: e.lastModified }).then(
+					(res) => {
+						if (i == this.img_list.length - 1) {
+							// La sauvegarde des images en locale est effective on va à présent vers l'éditeur.
+							this.router.navigate(['/editor']);
+						}
+					}, (err) => {
+						console.error(err);
+						alert("Une erreur s'est produite veuillez reprendre le processsus.");
+						this.clean_all_db_table();
+					}
+				);
+			}
+		})
+	}
+
 	clean_all_db_table() {
 		console.log('Nettoyage...')
-		this.db.clean_local_backuping_table('infospot').then((res) => {
-			this.db.clean_local_backuping_table('hotspot').then((res) => {
-				this.db.clean_local_backuping_table('image').then((res) => {
-					//
-				}, (err) => { console.error(err) })
-			}, (err) => { console.error(err) })
-		}, (err) => { console.error(err) })
+		return new Promise(
+			(resolve, reject) => {
+				this.db.clean_local_backuping_table('infospot').then((res_ip) => {
+					this.db.clean_local_backuping_table('hotspot').then((res_hp) => {
+						this.db.clean_local_backuping_table('image').then((res_img) => {
+							resolve({ res_ip, res_hp, res_img });
+						}, (err_img) => {
+							reject(err_img)
+						})
+					}, (err_hp) => {
+						reject(err_hp)
+					})
+				}, (err_ip) => {
+					reject(err_ip);
+				})
+			}
+		)
+	}
+
+	remove() {
+		// console.clear();
+		console.log(`${this.save_img}\n`, this.img_list);
+		/*
+		this.save_img.forEach((e, i) => {
+			if (!e) {
+				this.img_list.splice(i, 1)
+			}
+
+			if (i == this.save_img.length) {
+				this.save_img = [];
+				this.img_list.forEach((e, i) => {
+					this.save_img.push(true);
+				})
+			}
+		})
+		console.log(`${this.save_img}\n${this.img_list}`);
+		*/
 	}
 }
