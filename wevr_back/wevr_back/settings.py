@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'editor.apps.EditorConfig',
     'rest_framework',
     'corsheaders',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -141,15 +142,3 @@ CORS_ALLOWED_ORIGINS = [
     'https://localhost:4200',
     'http://localhost:4200',
 ]
-
-# CORS_ALLOW_HEADERS = [
-#     'accept',
-#     'accept-encoding',
-#     'authorization',
-#     'content-type',
-#     'dnt',
-#     'origin',
-#     'user-agent',
-#     'x-csrftoken',
-#     'x-requested-with',
-# ]

@@ -1,0 +1,6 @@
+django==2.2.9
+djangorestframework
+djongo
+djangorestframework-queryfields
+django-cors-headers
+django-filter
