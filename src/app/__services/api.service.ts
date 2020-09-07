@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { GService } from './g.service';
-import { Image_360, Hotspot, Infospot } from '../model';
 
 @Injectable({
 	providedIn: 'root'

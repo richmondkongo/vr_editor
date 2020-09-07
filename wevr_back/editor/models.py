@@ -3,6 +3,22 @@ from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
 from wevr_back.models import BaseModel
 
+
+
+
+def imageConvert(data):
+    from django.core.files.base import ContentFile
+    import base64
+    import uuid
+    if data == '' or data == None:
+        a = None
+        print("c'est nul, pas d'image")
+    else:
+        format, imgstr = data.split(';base64,')
+        ext = format.split('/')[-1]
+        a = ContentFile(base64.b64decode(imgstr), name=str(uuid.uuid4())[:12] + '.' + ext)
+    return a
+
 class Visite_virtuelle(BaseModel):
     libelle = models.CharField(max_length=255, help_text="Le libelle de la visite.", blank=True, null=False, default='vide')
     client = models.CharField(max_length=255, help_text="Id du client concerné.", blank=True, null=True, default='no')
@@ -11,13 +27,17 @@ class Visite_virtuelle(BaseModel):
 
 
 class Image_360(BaseModel):
-    base64 = models.TextField(help_text="Base 64 de l'image.", blank=True, null=True)
+    # base64 = models.TextField(help_text="Base 64 de l'image.", blank=True, null=True)
+    base64 = models.ImageField(upload_to='images_visites_virtuelles/', null=True, blank=True)
+    # base64 = models.FileField(upload_to='images_vr/%Y/%m/%d')
     lastModified = models.CharField(max_length=255, null=True, help_text="La dernière modification effectuée par le user sur l'image au niveau de lui son pc.")
     name = models.CharField(max_length=255, help_text="Le libelle de la visite.", blank=True, null=True)
     size = models.IntegerField(validators=[MaxValueValidator(9999999999)], null=True, help_text="Taille de l'image.")
     vr = models.ForeignKey(Visite_virtuelle, on_delete=models.CASCADE, help_text="Visite virtuelle concernée à laquelle cette image est liée.", related_name='image_360')
+
     def __str__(self):
         return self.name
+
 
 
 class Hotspot(BaseModel):

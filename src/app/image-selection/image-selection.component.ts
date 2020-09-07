@@ -20,7 +20,7 @@ export class ImageSelectionComponent implements OnInit {
 
 	ngOnInit(): void {
 		// Nettoyage de la bd locale
-		// this.clean_all_db_table();
+		this.clean_all_db_table();
 
 		// permet de designer le bouton de selection des images
 		document.getElementById('btn-select-file').addEventListener('click', () => {
@@ -47,6 +47,7 @@ export class ImageSelectionComponent implements OnInit {
 									for (let i = 0; i < e.target.files.length; i++) {
 										let reader = new FileReader();
 										reader.readAsDataURL(e.target.files[i]);
+										console.log(e.target.files[i])
 										reader.onload = (ev: any) => {
 											this.save_img.push(true);
 											this.img_list.push({ id: uuid(), base64: ev.target.result, name: e.srcElement.files[i].name, size: e.srcElement.files[i].size, lastModified: e.srcElement.files[i].lastModified });
@@ -68,22 +69,40 @@ export class ImageSelectionComponent implements OnInit {
 	}
 
 	local_save() {
-		this.img_list.forEach((e, i) => {
-			if (this.save_img[i]) {
-				this.db.create_local_backuping_img({ id: e.id, base64: e.base64, name: e.name, size: e.size, lastModified: e.lastModified }).then(
-					(res) => {
-						if (i == this.img_list.length - 1) {
-							// La sauvegarde des images en locale est effective on va à présent vers l'éditeur.
-							this.router.navigate(['/editor']);
+		if (this.img_list.length > 0) {
+			this.img_list.forEach((e, i) => {
+				if (this.save_img[i]) {
+					this.db.create_local_backuping_img({ id: e.id, base64: e.base64, name: e.name, size: e.size, lastModified: e.lastModified }).then(
+						(res) => {
+							if (i == this.img_list.length - 1) {
+								// La sauvegarde des images en locale est effective on va à présent vers l'éditeur.
+								// this.router.navigate(['/editor']);
+
+								this.db.count_local_backuping_table('image').then(
+									(count: number) => {
+										if (count == this.img_list.length) {
+											window.location.assign("/editor");
+										} else {
+											setTimeout(() => {
+												window.location.assign("/editor");
+											}, 2500);
+										}
+									}, (err) => {
+										console.error(err);
+									}
+								);
+							}
+						}, (err) => {
+							console.error(err);
+							alert("Une erreur s'est produite veuillez reprendre le processsus.");
+							this.clean_all_db_table();
 						}
-					}, (err) => {
-						console.error(err);
-						alert("Une erreur s'est produite veuillez reprendre le processsus.");
-						this.clean_all_db_table();
-					}
-				);
-			}
-		})
+					);
+				}
+			})
+		} else {
+			alert("Ajoutez des images avant l'édition!")
+		}
 	}
 
 	clean_all_db_table() {

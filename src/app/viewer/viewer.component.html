@@ -58,7 +58,7 @@
                      <div class="col-12" id="img-list">
                         <div class="row">
                            <div class="col-4" (click)="select_next_image(i)" *ngFor="let _pano of pano_img; let i=index"
-                              [ngStyle]="{ display: set_display(i) }">
+                              [ngStyle]="{ display: set_display(i), border: set_border(i) }">
                               <img [src]="_pano" [alt]="_pano">
                            </div>
                         </div>

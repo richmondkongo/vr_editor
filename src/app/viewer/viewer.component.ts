@@ -6,6 +6,7 @@ import { LocalSaveService } from '../__services/local-save.service';
 import { Hotspot, Infospot } from '../model';
 import { ApiService } from '../__services/api.service';
 import { Router } from '@angular/router';
+
 declare var $: any;
 
 @Component({
@@ -56,6 +57,7 @@ export class ViewerComponent implements OnInit {
 	constructor(private db: LocalSaveService, private api: ApiService, private router: Router) { }
 
 	ngOnInit() {
+		// window.location.reload(true);
 		this.db.count_local_backuping_table('image').then(
 			(count: number) => {
 				if (count > 0) {
@@ -263,9 +265,16 @@ export class ViewerComponent implements OnInit {
 
 	set_display(i) {
 		/*
-		 * permet de ne pas afficher l'image dont on est sur lz panorama
+		 * permet de ne pas afficher l'image dont on est sur le panorama
 		 */
 		return (i == this.now_img) ? 'none' : 'flex';
+	}
+
+	set_border(i) {
+		/*
+		 * permet de ne pas afficher l'image dont on est sur lz panorama
+		 */
+		return (i == this.next_hspot) ? '0.2em solid #508a3e' : '0em solid red';
 	}
 
 	go_to_image(i) {
@@ -364,6 +373,7 @@ export class ViewerComponent implements OnInit {
 			(res_visite: any) => {
 				this.db.get_local_backuping_img().then(
 					(res_img: any) => {
+						// console.log('imgage response:', res_img)
 						let id_of_img: string[] = [];
 						for (let i = 0; i < res_img.length; i++) {
 							const e = res_img[i];
