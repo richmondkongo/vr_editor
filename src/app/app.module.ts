@@ -14,6 +14,7 @@ import { GService } from './__services/g.service';
 import { ImageSelectionComponent } from './image-selection/image-selection.component';
 import { TestComponent } from './test/test.component';
 import { SplashscreenComponent } from './splashscreen/splashscreen.component';
+import { EditorComponent } from './editor/editor.component';
 
 const dbConfig = {
   name: 'wevr',
@@ -47,7 +48,8 @@ const dbConfig = {
     ViewerComponent,
     ImageSelectionComponent,
     TestComponent,
-    SplashscreenComponent
+    SplashscreenComponent,
+    EditorComponent
   ],
   imports: [
 		HttpClientModule,

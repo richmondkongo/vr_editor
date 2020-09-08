@@ -33,3 +33,7 @@ Obtenir le nom des arguments d'une fonction:
 
 commande build:
    ng build --prod --aot
+
+
+customizer un infospot:
+   https://codepen.io/pchen66/pen/dRYNNG

@@ -1,0 +1,120 @@
+body, html, .container-fluid {
+    background: #000200;
+    color: white;
+}
+
+.modal-body * {
+	margin: 0em;
+	padding: 0em;
+	box-sizing: border-box;
+}
+
+#progress {
+	width: 0;
+	height: 5px;
+	position: fixed;
+	top: 0;
+	background: #fff;
+	-webkit-transition: opacity 0.5s ease;
+	transition: opacity 0.5s ease;
+}
+ 
+#progress.finish {
+	  opacity: 0;
+}
+
+.btn-fixed-control-hotspot-infospot {
+  	display: flex;
+	flex-direction: column;
+  	justify-content: center;
+  	position: fixed;
+  	margin-top: 2%;
+}
+
+.btn-fixed-control-save-visit {
+	display: flex;
+	flex-direction: column;
+  	justify-content: center;
+  	position: fixed;
+	bottom: -0.5%;
+	right: 5.75%;
+}
+
+.btn-fixed-control-save-visit svg {
+	width: 1.8em;
+	height: 1.8em;
+}
+
+.btn-fixed-control-save-visit button:hover svg {
+	transform: scale(1.30);
+}
+
+#img-list * {
+  	margin: 0em;
+  	padding: 0em;
+  	box-sizing: border-box;
+}
+
+#img-list img {
+  	width: 100%; 
+  	max-height: auto; 
+  	margin: 0px; 
+  	padding: 0px
+}
+
+#img-bottom {
+	position: fixed;
+	bottom: 5%
+}
+
+#img-bottom div {
+	margin: 0em;
+	padding: 0em;
+	box-sizing: border-box;
+}
+
+.my-row {
+	display: flex;
+    flex-direction: row;
+    max-height: 10em;
+    overflow-y: hidden !important;
+}
+
+.my-row::-webkit-scrollbar {
+	width: 0.1em;
+	height: 0.25em;
+    background-color: #F5F5F5
+}
+
+.my-row::-webkit-scrollbar-thumb {
+    background-color: #0069d9;
+}
+
+.my-row::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    background-color: #F5F5F5;
+}
+
+.my-row img {
+	width: 100%;
+	height: 100%;
+}
+
+.basic-border {
+	border-top: 0px solid #218838;
+}
+
+.selected-border {
+	border-top: 5px solid #218838;
+}
+
+@media only screen and (max-width: 992px) {
+	.btn-fixed-control-save-visit {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		position: fixed;
+		bottom: -0.5%;
+		margin-right: 5.75%;
+	}
+}

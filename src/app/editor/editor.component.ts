@@ -8,20 +8,12 @@ import { ApiService } from '../__services/api.service';
 import { Router } from '@angular/router';
 
 declare var $: any;
-
 @Component({
-	selector: 'app-viewer',
-	templateUrl: './viewer.component.html',
-	styleUrls: ['./viewer.component.scss']
+  selector: 'app-editor',
+  templateUrl: './editor.component.html',
+  styleUrls: ['./editor.component.scss']
 })
-
-/*
-ng serve --ssl true --ssl-key /node_modules/browser-sync/lib/server/certs/server.key --ssl-cert /node_modules/browser-sync/lib/server/certs/server.crt --host 0.0.0.0 --port 3000 -o
-configuratio de viewer: https://pchen66.github.io/Panolens/docs/index.html
-https://github.com/pchen66/panolens.js/issues/160
-*/
-
-export class ViewerComponent implements OnInit {
+export class EditorComponent implements OnInit {
 	// Les deux variables ci dessous permettent d'envoyer une sorte de signal ordonnant la suppression des tables locales
 	signal_hotspot: number = 0; signal_infospot: number = 0;
 
@@ -438,4 +430,5 @@ export class ViewerComponent implements OnInit {
 		)
 	}
 }
+
 
