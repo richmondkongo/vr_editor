@@ -9,10 +9,10 @@ export class ApiService {
 
 	constructor(private httpClient: HttpClient, private g: GService) { }
 
-	get_visite_virtuelle() {
+	get_visite_virtuelle(filtre: string = '') {
 		return new Promise(
 			(resolve, reject) => {
-				this.httpClient.get<any>(this.g.links.visite_virtuelle, this.g.getHttpOptions()).subscribe(
+				this.httpClient.get<any>(this.g.links.visite_virtuelle + filtre, this.g.getHttpOptions()).subscribe(
 					(res) => {
 						resolve(res);
 					}, (err) => {

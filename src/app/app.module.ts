@@ -15,6 +15,7 @@ import { ImageSelectionComponent } from './image-selection/image-selection.compo
 import { TestComponent } from './test/test.component';
 import { SplashscreenComponent } from './splashscreen/splashscreen.component';
 import { EditorComponent } from './editor/editor.component';
+import { ListVrComponent } from './list-vr/list-vr.component';
 
 const dbConfig = {
   name: 'wevr',
@@ -49,7 +50,8 @@ const dbConfig = {
     ImageSelectionComponent,
     TestComponent,
     SplashscreenComponent,
-    EditorComponent
+    EditorComponent,
+    ListVrComponent
   ],
   imports: [
 		HttpClientModule,

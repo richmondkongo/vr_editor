@@ -5,7 +5,7 @@ import * as panolens from 'panolens';
 import { LocalSaveService } from '../__services/local-save.service';
 import { Hotspot, Infospot } from '../model';
 import { ApiService } from '../__services/api.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 declare var $: any;
 
@@ -22,9 +22,6 @@ https://github.com/pchen66/panolens.js/issues/160
 */
 
 export class ViewerComponent implements OnInit {
-	// Les deux variables ci dessous permettent d'envoyer une sorte de signal ordonnant la suppression des tables locales
-	signal_hotspot: number = 0; signal_infospot: number = 0;
-
 	// Ensemble des liens entres images
 	link_to: Hotspot[] = [];
 
@@ -51,22 +48,38 @@ export class ViewerComponent implements OnInit {
 	// contient toute la vue 360
 	sky: panolens.Viewer = null;
 
-	constructor(private db: LocalSaveService, private api: ApiService, private router: Router) { }
+	visite: any = null;
+
+	constructor(private db: LocalSaveService, private api: ApiService, private router: Router, private route: ActivatedRoute) { }
 
 	ngOnInit() {
-		// window.location.reload(true);
-		this.db.count_local_backuping_table('image').then(
-			(count: number) => {
-				if (count > 0) {
-					this.set_locale_view();
-				} else {
-					alert(`Vous n'avez pas sélectionné des images pour l'édition.\nFaites le en premier lieu.`);
-					this.router.navigate(['image-selection']);
+		if (this.route.snapshot.params['visite']) {
+			this.api.get_visite_virtuelle(`?id=${this.route.snapshot.params['visite']}`).then(
+				(res: any) => {
+					this.visite = res;
+					this.visite
+					this.get_images_visite();
+				}, (err) => {
+					console.error(err);
 				}
-			}, (err) => {
-				console.error(err);
+			);
+		} else {
+			this.visite = JSON.parse(localStorage.visite);
+			this.get_images_visite();
+		}
+	}
+
+	get_images_visite() {
+		for (let i = 0; i < this.visite.image_360.length; i++) {
+			const e = this.visite.image_360[i];
+			this.pano_img.push(e.base64);
+			this.pano_img_id.push(e.id);
+			this.infospot = this.infospot.concat(e.infospot)
+			this.link_to = this.link_to.concat(e.hotspot)
+			if (i == this.visite.image_360.length - 1) {
+				this.start_view(this.pano_img, this.link_to, this.infospot)
 			}
-		);
+		}
 	}
 
 	start_view(img: string[], link: Hotspot[], infoS: Infospot[] = []) {
@@ -120,7 +133,7 @@ export class ViewerComponent implements OnInit {
 		});
 	}
 
-	addInfospot(infospot: Infospot, url: string=null) {
+	addInfospot(infospot: Infospot, url: string = null) {
 		/*
 		 * Crée un spot de type info (celui qu'on a personnalisé: type Infospot)
 		 */
@@ -128,7 +141,7 @@ export class ViewerComponent implements OnInit {
 		let info = new panolens.Infospot(250, url, false), tab_coords = this.conv_text2xyz(infospot.coords);
 		info.position.set(tab_coords[0], tab_coords[1], tab_coords[2]);
 		// info.addHoverText(infospot.info);
-		info.addHoverElement( document.getElementById( 'desc-container' ), 100 );
+		info.addHoverElement(document.getElementById('desc-container'), 100);
 		return <panolens.Infospot>info;
 	}
 
@@ -199,76 +212,6 @@ export class ViewerComponent implements OnInit {
 		this.next_hspot = image_id;
 	}
 
-	on_submit_infospot(f: NgForm) {
-		/*
-		 * Permet de créer des infospots mis dans le formulaire
-		 */
-		if (document.getElementById('coord_3d').textContent != '*') {
-			let i: Infospot = new Infospot();
-			i.coords = document.getElementById('coord_3d').textContent;
-			i.img = this.pano_img_id[this.now_img];
-			i.info = f.value.t;
-			this.db.create_locale_backuping_infospot({ txt_or_html: 0, img: this.pano_img_id[this.now_img], coords: i.coords, info: i.info }).then(
-				(res) => {
-					this.p[this.now_img].add(this.addInfospot(i));
-					document.getElementById('coord_3d').textContent = '*';
-					this.infospot.push(this.addInfospot(i));
-				}, (err) => {
-					console.error(err);
-				}
-			)
-			$('#infospot-modal').modal('hide');
-		} else {
-			alert('Ajouter d\'abord des coordonnées');
-		}
-	}
-
-	on_submit_hspot() {
-		/*
-		 * Permet de créer des hotspots
-		 */
-		let xyz = this.conv_text2xyz(document.getElementById('coord_3d').textContent);
-		xyz[1] -= 300;
-		xyz = xyz.join(', ');
-		let div_coord_3d = document.getElementById('coord_3d').textContent;
-		this.link_to.push({ origin: this.pano_img_id[this.now_img], coords: div_coord_3d, to: this.pano_img_id[this.next_hspot] });
-		this.db.create_locale_backuping_hotspot({ origin: this.pano_img_id[this.now_img], coords: div_coord_3d, to: this.pano_img_id[this.next_hspot] })
-		let i: Infospot = new Infospot();
-		i.coords = xyz;
-		i.img = this.pano_img_id[this.now_img];
-		i.info = this.hotspot_infospot;
-		this.hotspot_infospot = '';
-		this.db.create_locale_backuping_infospot({ txt_or_html: 0, img: this.pano_img_id[this.now_img], coords: i.coords, info: i.info }).then(
-			(res) => {
-				this.p[this.now_img].add(this.addInfospot(i));
-				this.infospot.push(this.addInfospot(i));
-				$('#hotspot-modal').modal('hide');
-			}, (err) => {
-				console.error(err);
-			}
-		)
-		this.set_locale_view();
-		document.getElementById('coord_3d').textContent = '*';
-	}
-
-	show_spot_modal(class_name: string) {
-		/*
-		 * permet d'afficher un modale en lui passant en paramètre le nom de la classe du modale
-		 */
-		if (document.getElementById('coord_3d').textContent == '*') {
-			alert('Ajouter d\'abord des coordonnées')
-		} else {
-			$(class_name).modal('show');
-		}
-	}
-
-	set_display(i) {
-		/*
-		 * permet de ne pas afficher l'image dont on est sur le panorama
-		 */
-		return (i == this.now_img) ? 'none' : 'flex';
-	}
-
 	set_border(i) {
 		/*
 		 * permet d'encadrer l'image sélectionnée
@@ -284,158 +227,5 @@ export class ViewerComponent implements OnInit {
 		this.sky.setPanorama(this.p[this.now_img]);
 	}
 
-	set_locale_view() {
-		this.pano_img = [];
-		this.pano_img_id = [];
-
-		this.db.get_local_backuping_img().then(
-			(res: any) => {
-				res.forEach((elt, i) => {
-					this.pano_img.push(elt.base64);
-					this.pano_img_id.push(elt.id);
-					if (i == res.length - 1) {
-						this.db.get_local_backuping_infospot().then(
-							(res_infospot: any[]) => {
-								if (res_infospot.length == 0) {
-									// lorsqu'on a pas d'infospot
-									this.db.get_local_backuping_hotspot().then(
-										(res_hotspot: any[]) => {
-											if (res_hotspot.length == 0) {
-												this.start_view(this.pano_img, this.link_to, this.infospot);
-											} else {
-												res_hotspot.forEach((elt3, i3) => {
-													this.link_to.push({ origin: elt3.origin, to: elt3.to, coords: elt3.coords })
-													if (i3 == res_hotspot.length - 1) {
-														document.querySelectorAll('.panolens-container').forEach((a) => { a.remove() })
-														this.start_view(this.pano_img, this.link_to, this.infospot);
-													}
-												});
-											}
-										}, (err_hotspot) => {
-											console.error(err_hotspot);
-										}
-									);
-								} else {
-									// quand on a des infospots
-									res_infospot.forEach((elt2, i2) => {
-										this.infospot.push({ img: elt2.img, info: elt2.info, coords: elt2.coords })
-										if (i2 == res_infospot.length - 1) {
-											this.db.get_local_backuping_hotspot().then(
-												(res_hotspot: any[]) => {
-													res_hotspot.forEach((elt3, i3) => {
-														this.link_to.push({ origin: elt3.origin, to: elt3.to, coords: elt3.coords })
-														if (i3 == res_hotspot.length - 1) {
-															document.querySelectorAll('.panolens-container').forEach((a) => { a.remove() })
-															this.start_view(this.pano_img, this.link_to, this.infospot);
-														}
-													});
-												}, (err_hotspot) => {
-													console.error(err_hotspot);
-												}
-											);
-										}
-									})
-								}
-							}, (err_infospot) => {
-								console.error(err_infospot);
-							}
-						)
-					}
-
-				});
-			}, (err) => {
-				console.error(err);
-			}
-		)
-	}
-
-	clean_all_db_table() {
-		console.log('Nettoyage...')
-		if (this.signal_hotspot == 1 && this.signal_infospot == 1) {
-			this.db.clean_local_backuping_table('infospot').then((res) => {
-				this.db.clean_local_backuping_table('hotspot').then((res) => {
-					this.db.clean_local_backuping_table('image').then((res) => {
-						let conf = confirm("Votre visite virtuelle a bien été sauvegardé, voulez vous en ajouter une nouvelle?");
-						if (conf) {
-							this.router.navigate(['/image-selection']);
-						} else {
-							this.router.navigate(['/']);
-						}
-					}, (err) => { console.error(err) })
-				}, (err) => { console.error(err) })
-			}, (err) => { console.error(err) })
-		}
-	}
-
-	save_online() {
-		console.clear(); console.log('sauvegarde en ligne...')
-		this.api.set_visite_virtuelle((Date.now()).toString()).then(
-			(res_visite: any) => {
-				this.db.get_local_backuping_img().then(
-					(res_img: any) => {
-						// console.log('imgage response:', res_img)
-						let id_of_img: string[] = [];
-						for (let i = 0; i < res_img.length; i++) {
-							const e = res_img[i];
-							this.api.set_image_360(res_visite.id, e.base64, e.id, e.name, e.lastModified, e.size).then(
-								(res_img_online: any) => {
-									id_of_img.push(e.id);
-									if (i == res_img.length - 1) {
-										id_of_img.forEach(elt => {
-											this.db.get_local_backuping_hotspot(elt).then(
-												(res_hotspot: any) => {
-													for (let j = 0; j < res_hotspot.length; j++) {
-														const f = res_hotspot[j];
-														this.api.set_hotspot(f.origin, f.to, f.coords).then(
-															(res_hotspot_online) => {
-																if (j == res_hotspot.length - 1) {
-																	this.signal_hotspot = 1;
-																	this.clean_all_db_table();
-																}
-															}, (err_hotspot_online) => {
-																console.error(err_hotspot_online);
-															}
-														);
-													}
-												}, (err_hotspot) => {
-													console.error(err_hotspot);
-												}
-											);
-
-											this.db.get_local_backuping_infospot(elt).then(
-												(res_infospot: any) => {
-													for (let j = 0; j < res_infospot.length; j++) {
-														const f = res_infospot[j];
-														this.api.set_infospot(f.img, f.coords, f.info, f.txt_or_html).then(
-															(res_infospot_online) => {
-																if (j == res_infospot.length - 1) {
-																	this.signal_infospot = 1;
-																	this.clean_all_db_table();
-																}
-															}, (err_hotspot_online) => {
-																console.error(err_hotspot_online);
-															}
-														);
-													}
-												}, (err_hotspot) => {
-													console.error(err_hotspot);
-												}
-											);
-										});
-									}
-								}, (err_img_online) => {
-									console.error(err_img_online);
-								}
-							)
-						}
-					}, (err_img) => {
-						console.error(err_img);
-					}
-				)
-			}, (err_visite => {
-				console.error(err_visite)
-			})
-		)
-	}
 }
 

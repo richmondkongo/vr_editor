@@ -1,80 +1,7 @@
 <div class="container-fluid">
    <div class="row">
       <div class="col-10">
-         <div class="btn-fixed-control-hotspot-infospot">
-            <button type="button" class="btn btn-primary" (click)="show_spot_modal('#infospot-modal')">i</button>
-            <button type="button" class="btn btn-success" (click)="show_spot_modal('#hotspot-modal')">h</button>
-         </div>
-
-         <div class="btn-fixed-control-save-visit">
-            <button type="button" class="btn" style="color: white;" (click)="save_online()"
-               title="Sauvegarder la visite virtuelle(VR)"><i class="fas fa-cloud-upload-alt"></i></button>
-         </div>
          <div id="progress"></div>
-      </div>
-   </div>
-</div>
-
-<!-- Modal -->
-<div class="modal fade" id="infospot-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-   aria-hidden="true">
-   <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-      <div class="modal-content">
-         <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">CREATION D'UN INFOSPOT</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-               <span aria-hidden="true">&times;</span>
-            </button>
-         </div>
-         <div class="modal-body">
-            <form (ngSubmit)="on_submit_infospot(f_spot)" #f_spot="ngForm" class="row">
-               <input type="text" name="t" ngModel placeholder="Entrer l'information de l'infospot!" class="col-8">
-               <button typeks="submit" class="btn btn-primary col-4">Ajouter un infospot</button>
-            </form>
-         </div>
-      </div>
-   </div>
-</div>
-
-<div class="modal fade" id="hotspot-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-   aria-hidden="true">
-   <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-      <div class="modal-content">
-         <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">CREATION D'UN HOTSPOT</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-               <span aria-hidden="true">&times;</span>
-            </button>
-         </div>
-         <div class="modal-body">
-            <div class="row">
-               <div class="col-12">
-                  <div class="row">
-                     <div class="col-12" id="img-list">
-                        <div class="row">
-                           <div class="col-4" (click)="select_next_image(i)" *ngFor="let _pano of pano_img; let i=index"
-                              [ngStyle]="{ display: set_display(i), border: set_border(i) }">
-                              <img [src]="_pano" [alt]="_pano">
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </div>
-
-         <div class="modal-footer">
-            <div class="col-12">
-               <div class="row">
-                  <div class="col-12">
-                     <input type="text" [(ngModel)]="hotspot_infospot" placeholder="Entrer l'information de l'infospot!"
-                        class="col-8" placeholder="Information concernant ce lien.">
-                  </div>
-                  <button type="button" (click)="on_submit_hspot()" class="btn btn-primary"
-                     style="width: 100%; margin: 0em 0em 1em 0em">Ajouter un infospot</button>
-               </div>
-            </div>
-         </div>
       </div>
    </div>
 </div>
@@ -124,7 +51,7 @@
          padding: 0 20px 20px 20px;
       }
    </style>
-   <iframe src="https://www.youtube.com/embed/D7icsuamx5E"></iframe>
+   <!-- <iframe src="https://www.youtube.com/embed/D7icsuamx5E"></iframe> -->
    <div class="title">China's Forgotten War</div>
    <div class="text">WWII came to the small town of Tai’erzhuang in central China – and it was never the same again. The
       town was strategically placed, on the north-south transport railway corridor and the ancient Grand Canal, and so

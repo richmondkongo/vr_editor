@@ -9,19 +9,19 @@ import { Router } from '@angular/router';
 
 declare var $: any;
 @Component({
-  selector: 'app-editor',
-  templateUrl: './editor.component.html',
-  styleUrls: ['./editor.component.scss']
+	selector: 'app-editor',
+	templateUrl: './editor.component.html',
+	styleUrls: ['./editor.component.scss']
 })
 export class EditorComponent implements OnInit {
 	// Les deux variables ci dessous permettent d'envoyer une sorte de signal ordonnant la suppression des tables locales
-	signal_hotspot: number = 0; signal_infospot: number = 0;
+	// signal_hotspot: number = 0; signal_infospot: number = 0;
 
 	// Ensemble des liens entres images
 	link_to: Hotspot[] = [];
 
 	// Ensemble des liens des images
-	pano_img: string[] = []; pano_img_id: string[] = [];
+	pano_img: string[] = []; pano_img_id: string[] = []; pano_img_name: string[] = [];
 
 	// utilisé lorsqu'on saisie le texte d'un hotspot
 	hotspot_infospot: string = '';
@@ -43,6 +43,9 @@ export class EditorComponent implements OnInit {
 	// contient toute la vue 360
 	sky: panolens.Viewer = null;
 
+	// template infospot par défaut
+	default_template: string = ``;
+
 	constructor(private db: LocalSaveService, private api: ApiService, private router: Router) { }
 
 	ngOnInit() {
@@ -61,7 +64,7 @@ export class EditorComponent implements OnInit {
 		);
 	}
 
-	start_view(img: string[], link: Hotspot[], infoS: Infospot[] = []) {
+	start_view(img: string[], link: Hotspot[], infoS: Infospot[] = [], goto: number=0) {
 		/*
 		 * cette fonction permet de lancer véritablement le panorama
 		 * args:
@@ -69,6 +72,7 @@ export class EditorComponent implements OnInit {
 		 * 			toutes les images de la visite virtuelle
 		 * 	link: lien entre les différentes images de la vr, 
 		 * 			il est de type Link dont la définition se trouve tout en bas
+		 *  goto: index de l'image où l'on être à l'activation de cette fonction
 		 */
 
 		this.setCSS();
@@ -107,12 +111,14 @@ export class EditorComponent implements OnInit {
 			item.addEventListener('progress', this.onProgress);
 			item.addEventListener('enter', () => { this.onEnter(index) });
 			this.sky.add(item);
-			if (index == this.p.length - 1)
+			if (index == this.p.length - 1) {
 				this.sky.setPanorama(this.p[this.now_img]);
+				this.go_to_image(goto)
+			}
 		});
 	}
 
-	addInfospot(infospot: Infospot, url: string=null) {
+	addInfospot(infospot: Infospot, url: string = null) {
 		/*
 		 * Crée un spot de type info (celui qu'on a personnalisé: type Infospot)
 		 */
@@ -120,7 +126,14 @@ export class EditorComponent implements OnInit {
 		let info = new panolens.Infospot(250, url, false), tab_coords = this.conv_text2xyz(infospot.coords);
 		info.position.set(tab_coords[0], tab_coords[1], tab_coords[2]);
 		// info.addHoverText(infospot.info);
-		info.addHoverElement( document.getElementById( 'desc-container' ), 100 );
+		info.addHoverElement(document.getElementById('desc-container'), 100);
+		/*
+		if (infospot.txt_or_html == 1) {
+			info.addHoverElement(document.getElementById('desc-container'), 100);
+		} else {
+			info.addHoverText(infospot.info);
+		}
+		*/
 		return <panolens.Infospot>info;
 	}
 
@@ -149,6 +162,7 @@ export class EditorComponent implements OnInit {
 		 * il permet également de mettre à jour la variable this.now_img lorsqu'on rentre dans un nouveau pano
 		 */
 		this.now_img = e;
+		this.next_hspot = (e != this.pano_img_id.length - 1)?e+1:0;
 		var progressElement;
 		progressElement = document.getElementById('progress');
 		progressElement.style.width = 0;
@@ -188,7 +202,11 @@ export class EditorComponent implements OnInit {
 		/*
 		 * permet d'envoyer l'image suivante pour le hotspot 
 		 */
-		this.next_hspot = image_id;
+		if (image_id == this.now_img) {
+			alert('Vous ne pouvez pas diriger ce lien vers image où ce dernier se trouve!(C\'est comme un serpent qui se mort la queue)')
+		} else {
+			this.next_hspot = image_id;
+		}
 	}
 
 	on_submit_infospot(f: NgForm) {
@@ -228,18 +246,21 @@ export class EditorComponent implements OnInit {
 		let i: Infospot = new Infospot();
 		i.coords = xyz;
 		i.img = this.pano_img_id[this.now_img];
-		i.info = this.hotspot_infospot;
+		i.info = (this.hotspot_infospot == '') ? this.pano_img_name[this.now_img] : this.hotspot_infospot;
 		this.hotspot_infospot = '';
 		this.db.create_locale_backuping_infospot({ txt_or_html: 0, img: this.pano_img_id[this.now_img], coords: i.coords, info: i.info }).then(
 			(res) => {
-				this.p[this.now_img].add(this.addInfospot(i));
+				// this.p[this.now_img].add(this.addInfospot(i));
 				this.infospot.push(this.addInfospot(i));
 				$('#hotspot-modal').modal('hide');
 			}, (err) => {
 				console.error(err);
 			}
 		)
-		this.set_locale_view();
+		this.set_locale_view(this.now_img);
+		// this.start_view(this.pano_img, this.link_to, this.infospot, this.now_img)
+		// console.log(this.pano_img, this.link_to, this.infospot, this.now_img)
+		// this.go_to_image(this.now_img);
 		document.getElementById('coord_3d').textContent = '*';
 	}
 
@@ -254,18 +275,17 @@ export class EditorComponent implements OnInit {
 		}
 	}
 
-	set_display(i) {
-		/*
-		 * permet de ne pas afficher l'image dont on est sur le panorama
-		 */
-		return (i == this.now_img) ? 'none' : 'flex';
-	}
-
 	set_border(i) {
 		/*
 		 * permet d'encadrer l'image sélectionnée
 		 */
-		return (i == this.next_hspot) ? '0.2em solid #508a3e' : '0em solid red';
+		if (i == this.next_hspot) {
+			return '0.2em solid #508a3e';
+		} else if (i == this.now_img) {
+			return '0.2em solid red';
+		} else {
+			return '0em solid yellow';
+		}
 	}
 
 	go_to_image(i) {
@@ -276,15 +296,17 @@ export class EditorComponent implements OnInit {
 		this.sky.setPanorama(this.p[this.now_img]);
 	}
 
-	set_locale_view() {
+	set_locale_view(goto: number=0) {
 		this.pano_img = [];
 		this.pano_img_id = [];
+		this.pano_img_name = [];
 
 		this.db.get_local_backuping_img().then(
 			(res: any) => {
 				res.forEach((elt, i) => {
 					this.pano_img.push(elt.base64);
 					this.pano_img_id.push(elt.id);
+					this.pano_img_name.push(elt.name);
 					if (i == res.length - 1) {
 						this.db.get_local_backuping_infospot().then(
 							(res_infospot: any[]) => {
@@ -293,13 +315,13 @@ export class EditorComponent implements OnInit {
 									this.db.get_local_backuping_hotspot().then(
 										(res_hotspot: any[]) => {
 											if (res_hotspot.length == 0) {
-												this.start_view(this.pano_img, this.link_to, this.infospot);
+												this.start_view(this.pano_img, this.link_to, this.infospot, goto);
 											} else {
 												res_hotspot.forEach((elt3, i3) => {
 													this.link_to.push({ origin: elt3.origin, to: elt3.to, coords: elt3.coords })
 													if (i3 == res_hotspot.length - 1) {
 														document.querySelectorAll('.panolens-container').forEach((a) => { a.remove() })
-														this.start_view(this.pano_img, this.link_to, this.infospot);
+														this.start_view(this.pano_img, this.link_to, this.infospot, goto);
 													}
 												});
 											}
@@ -318,7 +340,7 @@ export class EditorComponent implements OnInit {
 														this.link_to.push({ origin: elt3.origin, to: elt3.to, coords: elt3.coords })
 														if (i3 == res_hotspot.length - 1) {
 															document.querySelectorAll('.panolens-container').forEach((a) => { a.remove() })
-															this.start_view(this.pano_img, this.link_to, this.infospot);
+															this.start_view(this.pano_img, this.link_to, this.infospot, goto);
 														}
 													});
 												}, (err_hotspot) => {
@@ -333,7 +355,6 @@ export class EditorComponent implements OnInit {
 							}
 						)
 					}
-
 				});
 			}, (err) => {
 				console.error(err);
@@ -343,20 +364,18 @@ export class EditorComponent implements OnInit {
 
 	clean_all_db_table() {
 		console.log('Nettoyage...')
-		if (this.signal_hotspot == 1 && this.signal_infospot == 1) {
-			this.db.clean_local_backuping_table('infospot').then((res) => {
-				this.db.clean_local_backuping_table('hotspot').then((res) => {
-					this.db.clean_local_backuping_table('image').then((res) => {
-						let conf = confirm("Votre visite virtuelle a bien été sauvegardé, voulez vous en ajouter une nouvelle?");
-						if (conf) {
-							this.router.navigate(['/image-selection']);
-						} else {
-							this.router.navigate(['/']);
-						}
-					}, (err) => { console.error(err) })
+		this.db.clean_local_backuping_table('infospot').then((res) => {
+			this.db.clean_local_backuping_table('hotspot').then((res) => {
+				this.db.clean_local_backuping_table('image').then((res) => {
+					let conf = confirm("Votre visite virtuelle a bien été sauvegardé, voulez vous en ajouter une nouvelle?");
+					if (conf) {
+						this.router.navigate(['/image-selection']);
+					} else {
+						this.router.navigate(['/']);
+					}
 				}, (err) => { console.error(err) })
 			}, (err) => { console.error(err) })
-		}
+		}, (err) => { console.error(err) })
 	}
 
 	save_online() {
@@ -374,26 +393,6 @@ export class EditorComponent implements OnInit {
 									id_of_img.push(e.id);
 									if (i == res_img.length - 1) {
 										id_of_img.forEach(elt => {
-											this.db.get_local_backuping_hotspot(elt).then(
-												(res_hotspot: any) => {
-													for (let j = 0; j < res_hotspot.length; j++) {
-														const f = res_hotspot[j];
-														this.api.set_hotspot(f.origin, f.to, f.coords).then(
-															(res_hotspot_online) => {
-																if (j == res_hotspot.length - 1) {
-																	this.signal_hotspot = 1;
-																	this.clean_all_db_table();
-																}
-															}, (err_hotspot_online) => {
-																console.error(err_hotspot_online);
-															}
-														);
-													}
-												}, (err_hotspot) => {
-													console.error(err_hotspot);
-												}
-											);
-
 											this.db.get_local_backuping_infospot(elt).then(
 												(res_infospot: any) => {
 													for (let j = 0; j < res_infospot.length; j++) {
@@ -401,8 +400,26 @@ export class EditorComponent implements OnInit {
 														this.api.set_infospot(f.img, f.coords, f.info, f.txt_or_html).then(
 															(res_infospot_online) => {
 																if (j == res_infospot.length - 1) {
-																	this.signal_infospot = 1;
-																	this.clean_all_db_table();
+																	this.db.get_local_backuping_hotspot(elt).then(
+																		(res_hotspot: any) => {
+																			for (let k = 0; k < res_hotspot.length; k++) {
+																				const g = res_hotspot[k];
+																				this.api.set_hotspot(g.origin, g.to, g.coords).then(
+																					(res_hotspot_online) => {
+																						if (k == res_hotspot.length - 1) {
+																							setTimeout(() => {
+																								this.clean_all_db_table();
+																							}, 2000);
+																						}
+																					}, (err_hotspot_online) => {
+																						console.error(err_hotspot_online);
+																					}
+																				);
+																			}
+																		}, (err_hotspot) => {
+																			console.error(err_hotspot);
+																		}
+																	);
 																}
 															}, (err_hotspot_online) => {
 																console.error(err_hotspot_online);

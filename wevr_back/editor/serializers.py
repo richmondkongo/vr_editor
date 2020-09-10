@@ -38,7 +38,7 @@ class Image_360_serializer(serializers.ModelSerializer, QueryFieldsMixin):
 
     class Meta:
         model = Image_360
-        fields = ['id', 'base64', 'lastModified', 'name', 'size', 'vr', 'hotspot', 'infospot']
+        fields = ['id', 'base64', 'lastModified', 'name', 'size', 'vr', 'hotspot', 'infospot', 'created_at']
     
     # def create(self, validated_data):
     #     validated_data['base64'] = imageConvert(validated_data['base64'])
@@ -51,4 +51,4 @@ class Visite_virtuelle_serializer(serializers.ModelSerializer, QueryFieldsMixin)
 
     class Meta:
         model = Visite_virtuelle
-        fields = ['id', 'libelle', 'client', 'created_at', 'image_360']
+        fields = ['id', 'libelle', 'client', 'created_at', 'image_360', 'client']

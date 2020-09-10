@@ -27,15 +27,15 @@ class Visite_virtuelle_view(viewsets.ModelViewSet):
     queryset = Visite_virtuelle.objects.all().order_by('-created_at')
     serializer_class = Visite_virtuelle_serializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['libelle', 'client', 'image_360']
+    filterset_fields = ['libelle', 'client', 'image_360', 'id', 'client']
 
 
 class Image_360_view(viewsets.ModelViewSet):
-    ordered_tasks = Image_360.objects.order_by('-created_at')
-    queryset = Image_360.objects.all().order_by('-created_at')
+    ordered_tasks = Image_360.objects.order_by('created_at')
+    queryset = Image_360.objects.all().order_by('created_at')
     serializer_class = Image_360_serializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["id", "lastModified", "name", "size", "vr", 'hotspot', 'infospot']
+    filterset_fields = ["id", "lastModified", "name", "size", "vr", 'hotspot', 'infospot', 'created_at']
 
     def create(self, request, *args, **kwargs):
         request.data['base64'] = imageConvert(request.data['base64'])  

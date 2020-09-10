@@ -82,10 +82,6 @@ export class ImageSelectionComponent implements OnInit {
 									(count: number) => {
 										if (count == this.img_list.length) {
 											window.location.assign("/editor");
-										} else {
-											setTimeout(() => {
-												window.location.assign("/editor");
-											}, 2500);
 										}
 									}, (err) => {
 										console.error(err);
