@@ -125,8 +125,8 @@ export class EditorComponent implements OnInit {
 		// "https://images-na.ssl-images-amazon.com/images/I/61mtx+420hL._AC_US436_QL65_.jpg"
 		let info = new panolens.Infospot(250, url, false), tab_coords = this.conv_text2xyz(infospot.coords);
 		info.position.set(tab_coords[0], tab_coords[1], tab_coords[2]);
-		// info.addHoverText(infospot.info);
-		info.addHoverElement(document.getElementById('desc-container'), 100);
+		info.addHoverText(infospot.info);
+		// info.addHoverElement(document.getElementById('desc-container'), 100);
 		/*
 		if (infospot.txt_or_html == 1) {
 			info.addHoverElement(document.getElementById('desc-container'), 100);
